@@ -66,9 +66,8 @@ def format_input_type(v):
 		3: 'Shore'
 	}.get(v, 'Unknown')
 
-class ForcedIntegerItem(IntegerItem):
-	def __init__(self, onwrite, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+class ForcedItem(object):
+	def __init__(self, onwrite):
 		self.onwrite = onwrite
 
 	def set_value(self, v):
@@ -76,6 +75,11 @@ class ForcedIntegerItem(IntegerItem):
 		# the internal value
 		self.onwrite(v)
 		return super().set_value(v)
+
+class ForcedIntegerItem(ForcedItem, IntegerItem):
+	def __init__(self, onwrite, *args, **kwargs):
+		ForcedItem.__init__(self, onwrite)
+		IntegerItem.__init__(self, *args, **kwargs)
 
 class Service(_Service):
 	def __init__(self, bus, name, service):
