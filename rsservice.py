@@ -67,7 +67,8 @@ class RsService(Client):
 	summaries.update({p: SummarySum(p, DoubleItem) for p in (
 		"/Ac/Out/L1/NominalInverterPower",
 		"/Ac/Out/L2/NominalInverterPower",
-		"/Ac/Out/L3/NominalInverterPower")})
+		"/Ac/Out/L3/NominalInverterPower",
+		"/Ess/BatteryDischargeCapacity")})
 
 	# System state
 	summaries.update({p: SummaryDeviceState(p) for p in (
