@@ -81,6 +81,11 @@ class ForcedIntegerItem(ForcedItem, IntegerItem):
 		ForcedItem.__init__(self, onwrite)
 		IntegerItem.__init__(self, *args, **kwargs)
 
+class ForcedDoubleItem(ForcedItem, DoubleItem):
+	def __init__(self, onwrite, *args, **kwargs):
+		ForcedItem.__init__(self, onwrite)
+		IntegerItem.__init__(self, *args, **kwargs)
+
 class Service(_Service):
 	def __init__(self, bus, name, service):
 		super().__init__(bus, name)
