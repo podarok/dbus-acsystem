@@ -101,7 +101,8 @@ class RsService(Client):
 		"/N2kSystemInstance", "/State", "/Mode",
 		"/Ac/ActiveIn/ActiveInput",
 		"/Ess/AcPowerSetpoint", "/Ess/InverterPowerSetpoint",
-		"/Ess/DisableFeedIn", "/Ess/UseInverterPowerSetpoint"
+		"/Ess/DisableFeedIn", "/Ess/UseInverterPowerSetpoint",
+		"/Ess/BatteryDischargeSetpoint"
 	}.union(synchronised_paths).union(alarm_settings).union(summaries)
 
 	def __init__(self, *args, **kwargs):
@@ -219,6 +220,18 @@ class RsService(Client):
 	@inverter_setpoint.setter
 	def inverter_setpoint(self, v):
 		self.set_value_async("/Ess/InverterPowerSetpoint", v)
+
+	@property
+	def battery_discharge_capacity(self):
+		return self.get_value("/Ess/BatteryDischargeCapacity")
+
+	@property
+	def battery_discharge_setpoint(self):
+		return self.get_value("/Ess/BatteryDischargeSetpoint")
+
+	@battery_discharge_setpoint.setter
+	def battery_discharge_setpoint(self, v):
+		self.set_value_async("/Ess/BatteryDischargeSetpoint", v)
 
 	@property
 	def ignore_acin1(self):

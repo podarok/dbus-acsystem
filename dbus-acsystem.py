@@ -8,7 +8,7 @@ import asyncio
 import logging
 from argparse import ArgumentParser
 from collections import defaultdict
-from functools import partial
+from functools import partial, reduce
 
 # 3rd party
 try:
@@ -163,6 +163,8 @@ class Service(_Service):
 			"/Ess/DisableFeedIn", service.disable_feedin, writeable=True))
 		self.add_item(ForcedIntegerItem(self._set_setpoints,
 			"/Ess/AcPowerSetpoint", self._get_total_setpoint(), writeable=True))
+		self.add_item(ForcedDoubleItem(self._set_battery_discharge,
+			"/Ess/BatteryDischargeSetpoint", self._get_discharge_setpoint(), writeable=True))
 
 		# Paths that are just synchronised
 		for item, path in (
@@ -250,6 +252,21 @@ class Service(_Service):
 				service.inverter_setpoint = setpoint
 		return True
 
+	def _set_battery_discharge(self, v):
+		ov = 0.0 # push rounding errors down the line
+		for s in self.subservices:
+			try:
+				capacity = self.get_item("/Ess/BatteryDischargeCapacity").value
+				share = round(r := min(
+					(ov + v * s.battery_discharge_capacity) / capacity,
+					s.battery_discharge_capacity), 1)
+			except (ZeroDivisionError, TypeError):
+				return False # No support for this in firmware
+			else:
+				s.battery_discharge_setpoint = share
+				ov = (r - share)
+		return True
+
 	def _set_customname(self, v):
 		p = "/Settings/AcSystem/{}/CustomName".format(self.systeminstance)
 		cn = self.settings.get_value(p)
@@ -299,6 +316,11 @@ class Service(_Service):
 		except TypeError:
 			pass
 		return None
+
+	def _get_discharge_setpoint(self):
+		return reduce(lambda x, y: y if x is None else x+y,
+			(x for s in self.subservices if (x := s.battery_discharge_setpoint) is not None),
+			None)
 
 	def add_service(self, service):
 		self.subservices.add(service)
