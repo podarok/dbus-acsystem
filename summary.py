@@ -56,6 +56,13 @@ class SummaryMax(Summary):
 		except ValueError:
 			return None
 
+class SummaryMin(Summary):
+	def summarise(self, leader):
+		try:
+			return min(y for y in (x.get_value(self.path) for x in leader.subservices) if y is not None)
+		except ValueError:
+			return None
+
 class SummaryFirst(Summary):
 	def summarise(self, leader):
 		for x in leader.subservices:

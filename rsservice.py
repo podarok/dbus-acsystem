@@ -3,7 +3,7 @@ from aiovelib.client import Service as Client
 from aiovelib.client import Item as ClientItem
 from aiovelib.service import DoubleItem
 from summary import (SummaryAll, SummaryAny, SummaryFirst, SummaryMax,
-	SummarySum, SummaryOptionalAlarm, SummaryDeviceState)
+	SummaryMin, SummarySum, SummaryOptionalAlarm, SummaryDeviceState)
 
 class RsItem(ClientItem):
 	""" Subclass to allow us to wait for an item to turn valid. """
@@ -58,8 +58,12 @@ class RsService(Client):
 	summaries.update({p: SummaryMax(p) for p in (
 		"/Alarms/PhaseRotation",
 		"/Alarms/HighTemperature",
-		"/Alarms/Overload",
-		"/Ac/NoFeedInReason")})
+		"/Alarms/Overload")})
+
+	# Min of items
+	summaries.update({p: SummaryMin(p) for p in (
+		"/Ac/NoFeedInReason",)}) # If any unit can feed in, we're good
+
 	# First/any
 	summaries.update({p: SummaryFirst(p, DoubleItem) for p in (
 		"/Ess/ActiveSocLimit",)})
